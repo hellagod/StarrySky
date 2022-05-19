@@ -1,5 +1,6 @@
 from scripts.name_translator import name_translator
 
+
 class Planet:
     def __init__(self, obj: dict):
         self.name = name_translator(obj.get('name'))

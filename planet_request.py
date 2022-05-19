@@ -23,5 +23,4 @@ def planet_list_generator():
     planets_obj_list = []
     for i in range(len(planets_list)):
         planets_obj_list.append(Planet(planets_list[i]))
-        print(planets_list)
     return planets_obj_list
