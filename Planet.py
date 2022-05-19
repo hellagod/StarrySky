@@ -1,8 +1,11 @@
+from scripts.name_translator import name_translator
+
 class Planet:
     def __init__(self, obj: dict):
-        self.name = obj.get('name')
+        self.name = name_translator(obj.get('name'))
         self.id = obj.get('id')
         self.img_high_res = f'/StarrySky/planet_textures/{self.id}.jpg'
+        self.number_of_moons = len(obj.get('moons')) if obj.get('moons') is not None else 0
         #self.moons = obj.get('moons')
         self.gravity = obj.get('gravity')
         self.temperature = round(int(obj.get('avgTemp')) - 273.15, 2)
@@ -11,10 +14,12 @@ class Planet:
         self.volume = obj.get('vol').get('volValue') * pow(10, obj.get('vol').get('volExponent'))
         self.escape_velocity = obj.get('escape')
 
+
 class Moon:
     def __init__(self, obj: dict):
-        self.f
-
-
-# скачать в 2к и положить в отдельную папку
-# уменьшить в 5 раз
+        self.name = name_translator(obj.get('name'))
+        self.id = obj.get('id')
+        self.radius = obj.get('meanRadius')
+        self.discovery_date = obj.get('discoveryDate')
+        self.discovered_by = obj.get('discoveredBy')
+        self.gravity = obj.get('gravity')
