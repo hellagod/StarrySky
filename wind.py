@@ -1,3 +1,5 @@
+import sys
+
 import numpy as np
 from OpenGL.GL import *
 from OpenGL.GLU import *
@@ -5,7 +7,10 @@ from PIL import Image
 from PyQt5.QtCore import Qt, QTimer, QRect
 from PyQt5.QtGui import QFont, QColor, QPainter, QBrush
 from PyQt5.QtOpenGL import QGLWidget
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QGridLayout, QScrollArea, QStackedLayout
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QGridLayout, QScrollArea, QStackedLayout, QHBoxLayout
+
+from Planet import Planet
+
 
 
 def read_texture(file: str):
@@ -26,12 +31,13 @@ def read_texture(file: str):
 
 
 class GLPlanet(QGLWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, width=250, height=200):
         QGLWidget.__init__(self, parent)
         self.texture_id = None
-        self.setFixedSize(250, 200)
+        self.setFixedSize(width, height)
         self.ug = 90
         self.on_focus = False
+        self.parent = parent
 
     def resizeGL(self, width, height):
         glViewport(0, 0, width, height)
@@ -43,7 +49,7 @@ class GLPlanet(QGLWidget):
         glMatrixMode(GL_MODELVIEW)
 
     def paintGL(self):
-        if self.on_focus:
+        if  self.on_focus:
             self.rot(0.5)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         glPushMatrix()
@@ -63,17 +69,63 @@ class GLPlanet(QGLWidget):
     def initializeGL(self):
         self.qglClearColor(QColor(255, 255, 255))  # initialize the screen to blue
         glEnable(GL_DEPTH_TEST)  # enable depth testing
-        self.texture_id = read_texture('moon_1.jpg')
+        self.texture_id = read_texture(self.parent.planet.img_small_res)
+
+    def rot(self, u):
+        self.ug += u
+
+
+class GLPlanetWindow(QGLWidget):
+    def __init__(self, parent=None, width=600, height=600):
+        QGLWidget.__init__(self, parent)
+        self.texture_id = None
+        self.setFixedSize(width, height)
+        self.ug = 90
+        self.parent = parent
+
+    def resizeGL(self, width, height):
+        glViewport(0, 0, width, height)
+        glMatrixMode(GL_PROJECTION)
+        glLoadIdentity()
+        aspect = width / float(height)
+
+        gluPerspective(45.0, aspect, 1.0, 100.0)
+        glMatrixMode(GL_MODELVIEW)
+
+    def paintGL(self):
+        self.rot(0.2)
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+        glPushMatrix()
+        glBindTexture(GL_TEXTURE_2D, self.texture_id)
+        glTranslate(0.0, 0.0, -60)
+        glRotate(90, 1.0, 0.0, 0.0)
+        glRotatef(self.ug, 0.0, 0.0, 1.0)
+        glEnable(GL_TEXTURE_2D)
+        quadObj = gluNewQuadric()
+        gluQuadricDrawStyle(quadObj, GLU_FILL)
+        gluQuadricTexture(quadObj, GL_TRUE)
+        gluSphere(quadObj, 20, 100, 100)
+        glDisable(GL_TEXTURE_2D)
+
+        glPopMatrix()
+
+    def initializeGL(self):
+        self.qglClearColor(QColor(255, 255, 255))  # initialize the screen to blue
+        glEnable(GL_DEPTH_TEST)  # enable depth testing
+        self.texture_id = read_texture(self.parent.planet.img_high_res)
 
     def rot(self, u):
         self.ug += u
 
 
 class Card(QWidget):
-    def __init__(self):
+    def __init__(self, parent, planet: Planet, ind):
         super().__init__()
         layout = QVBoxLayout()
         self.setFixedSize(250, 300)
+        self.planet = planet
+        self.ind = ind
+        self.parent = parent
         layout.addWidget(self.logoImg())
         layout.addWidget(self.logoText())
         layout.setContentsMargins(0, 10, 0, 10)
@@ -91,78 +143,104 @@ class Card(QWidget):
         painter.drawRoundedRect(rect, 10, 10)
 
     def logoImg(self):
-        self.planet = GLPlanet(self)
+        self.planetGL = GLPlanet(self)
         timer = QTimer(self)
         timer.setInterval(20)
-        timer.timeout.connect(self.planet.updateGL)
+        timer.timeout.connect(self.planetGL.updateGL)
         timer.start()
-        return self.planet
+        return self.planetGL
 
     def logoText(self):
         self.txt = QLabel(self)
         self.txt.setStyleSheet("background-color: white; padding: 0 0 0 20px")
-        self.txt.setText('Планета')
+        self.txt.setText(self.planet.name)
         self.txt.setFont(QFont('Arial', 18))
         return self.txt
 
     def enterEvent(self, QEvent):
-        self.planet.on_focus = True
+        self.planetGL.on_focus = True
 
     def leaveEvent(self, QEvent):
-        self.planet.on_focus = False
+        self.planetGL.on_focus = False
+
+    def mouseReleaseEvent(self, QMouseEvent):
+        self.parent.layout.setCurrentIndex(self.ind+1)
 
 
 class Menu(QWidget):
-    def __init__(self, parent):
+    def __init__(self, parent, planets):
         super().__init__()
-        self.width = parent.width - 50
+        self.width = parent.width - 30
         self.height = 700
-        self.initUI()
         self.parent = parent
+        self.arr = planets
+        self.initUI()
 
     def initUI(self):
         layout = QGridLayout()
         layout.setSpacing(30)
         self.setAttribute(Qt.WA_StyledBackground, True)
-        arr = ['Меркурий', 'Венера', 'Земля', 'Марс', 'Юпитер', 'Сатурн', 'Уран', 'Нептун', 'Плутон']
         for i in range(3):
             for j in range(3):
-                if len(arr) > i * 3 + j:
-                    card = Card()
-                    card.mouseReleaseEvent = lambda event: self.parent.layout.setCurrentIndex(1)
+                if len(self.arr) > i * 3 + j:
+                    card = Card(self.parent, self.arr[i * 3 + j], i * 3 + j)
                     layout.addWidget(card, i, j)
         self.setLayout(layout)
         self.setFixedWidth(self.width)
 
 
 class Main(QWidget):
-    def __init__(self):
+    def __init__(self, arr):
         super().__init__()
+        self.layout1 = None
         self.title = 'StarrySky'
         self.width = 1000
         self.height = 600
+        self.list = arr
         self.initUI()
 
     def initUI(self):
         self.setWindowTitle(self.title)
         self.layout = QStackedLayout()
-        menu = Menu(self)
-        pl = PlanetWindow()
-        pl.mouseReleaseEvent = lambda event: self.layout.setCurrentIndex(0)
+        menu = Menu(self, self.list)
         mw = QScrollArea()
         mw.setWidget(menu)
         self.layout.addWidget(mw)
-        self.layout.addWidget(pl)
+        for planet in self.list:
+            pl = PlanetWindow(planet)
+            pl.mouseReleaseEvent = lambda event: self.layout.setCurrentIndex(0)
+            self.layout.addWidget(pl)
         self.setLayout(self.layout)
         self.setFixedSize(self.width, self.height)
 
 
 class PlanetWindow(QWidget):
-    def __init__(self):
+    def __init__(self, planet: Planet):
         super().__init__()
-        self.width = 640
-        self.height = 480
         self.initUI()
+        self.planet = planet
 
     def initUI(self):
-        pass
+        self.layout = QHBoxLayout()
+        self.planetGL = GLPlanetWindow(self)
+        timer = QTimer(self)
+        timer.setInterval(20)
+        timer.timeout.connect(self.planetGL.updateGL)
+        timer.start()
+        self.layout.addWidget(self.planetGL)
+        info = PlanetInfo()
+        mw = QScrollArea()
+        mw.setWidget(info)
+        self.layout.addWidget(mw)
+        self.setLayout(self.layout)
+
+
+class PlanetInfo(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.initUI()
+        self.setFixedWidth(360)
+
+    def initUI(self):
+        self.layout = QVBoxLayout()
+        self.setLayout(self.layout)
