@@ -5,12 +5,11 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 from PIL import Image
 from PyQt5.QtCore import Qt, QTimer, QRect
-from PyQt5.QtGui import QFont, QColor, QPainter, QBrush
+from PyQt5.QtGui import QFont, QColor, QPainter, QBrush, QPalette
 from PyQt5.QtOpenGL import QGLWidget
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QGridLayout, QScrollArea, QStackedLayout, QHBoxLayout
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QGridLayout, QScrollArea, QStackedLayout, QHBoxLayout, QFrame
 
 from Planet import Planet
-
 
 
 def read_texture(file: str):
@@ -97,7 +96,7 @@ class GLPlanetWindow(QGLWidget):
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         glPushMatrix()
         glBindTexture(GL_TEXTURE_2D, self.texture_id)
-        glTranslate(0.0, 0.0, -60)
+        glTranslate(0.0, 0.0, -70)
         glRotate(90, 1.0, 0.0, 0.0)
         glRotatef(self.ug, 0.0, 0.0, 1.0)
         glEnable(GL_TEXTURE_2D)
@@ -110,7 +109,7 @@ class GLPlanetWindow(QGLWidget):
         glPopMatrix()
 
     def initializeGL(self):
-        self.qglClearColor(QColor(255, 255, 255))  # initialize the screen to blue
+        self.qglClearColor(QColor(1, 14, 33))  # initialize the screen to blue
         glEnable(GL_DEPTH_TEST)  # enable depth testing
         self.texture_id = read_texture(self.parent.planet.img_high_res)
 
@@ -217,10 +216,14 @@ class Main(QWidget):
 class PlanetWindow(QWidget):
     def __init__(self, planet: Planet):
         super().__init__()
-        self.initUI()
         self.planet = planet
+        self.initUI()
 
     def initUI(self):
+        pal = QPalette()
+        pal.setColor(QPalette.Window, QColor(1, 14, 33))
+        self.setAutoFillBackground(True)
+        self.setPalette(pal)
         self.layout = QHBoxLayout()
         self.planetGL = GLPlanetWindow(self)
         timer = QTimer(self)
@@ -228,19 +231,44 @@ class PlanetWindow(QWidget):
         timer.timeout.connect(self.planetGL.updateGL)
         timer.start()
         self.layout.addWidget(self.planetGL)
-        info = PlanetInfo()
+        self.info = PlanetInfo(self.planet)
         mw = QScrollArea()
-        mw.setWidget(info)
+        mw.setFrameShape(QFrame.NoFrame)
+        mw.setWidget(self.info)
+        timer = QTimer(self)
+        timer.setInterval(20)
+        timer.timeout.connect(self.info.repaint)
+        timer.start()
         self.layout.addWidget(mw)
         self.setLayout(self.layout)
 
 
 class PlanetInfo(QWidget):
-    def __init__(self):
+    def __init__(self, planet: Planet):
         super().__init__()
-        self.initUI()
+        self.planet = planet
         self.setFixedWidth(360)
+        self.initUI()
 
     def initUI(self):
         self.layout = QVBoxLayout()
+        pal = QPalette()
+        pal.setColor(QPalette.Window, QColor(1, 14, 33))
+        self.setPalette(pal)
+        l = QLabel()
+        l.setText(self.planet.name)
+        l.setStyleSheet("color: white; padding: 0 0 10 0px")
+        l.setFont(QFont('Arial', 24))
+        self.layout.addWidget(l)
+        r = self.planet.get_dynamic_data()
+        array = [f'Количество спутников: {self.planet.number_of_moons} лун',
+                 f'Средняя температура: {self.planet.temperature}\u00b0', f'Радиус: {self.planet.radius} км',
+                 f'Масса: {self.planet.mass} кг', f'Объём: {self.planet.volume} км\u00b3',
+                 f'Расстояние до Земли: \n\t{r if r else 0} а.е.']
+        for i in array:
+            rev = QLabel()
+            rev.setText(i)
+            rev.setStyleSheet("color: white; padding: 5 0 0 5px")
+            rev.setFont(QFont('Arial', 12))
+            self.layout.addWidget(rev)
         self.setLayout(self.layout)
