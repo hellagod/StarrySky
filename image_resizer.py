@@ -1,3 +1,9 @@
+"""
+image_resizer.py is a utility script, that helps to make the rendering of textures faster.
+Changes the 2k resolution texture to a smaller one, for the sake of
+faster loading of the main menu with planets' cards.
+"""
+
 import sys
 
 from PIL import Image

@@ -1,3 +1,8 @@
+"""
+Utility script, that helps to translate the celestial bodies' names from french
+(hence the source database the data is acquired from is french) to russian
+"""
+
 from googletrans import Translator
 
 
