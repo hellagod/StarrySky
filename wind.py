@@ -153,7 +153,7 @@ class Card(QWidget):
         self.txt = QLabel(self)
         self.txt.setStyleSheet("background-color: white; padding: 0 0 0 20px")
         self.txt.setText(self.planet.name)
-        self.txt.setFont(QFont('Arial', 18))
+        self.txt.setFont(QFont('Courier', 18))
         return self.txt
 
     def enterEvent(self, QEvent):
@@ -194,7 +194,7 @@ class Main(QWidget):
         self.layout1 = None
         self.title = 'StarrySky'
         self.width = 1000
-        self.height = 600
+        self.height = 655
         self.list = arr
         self.initUI()
 
@@ -258,7 +258,7 @@ class PlanetInfo(QWidget):
         l = QLabel()
         l.setText(self.planet.name)
         l.setStyleSheet("color: white; padding: 0 0 10 0px")
-        l.setFont(QFont('Arial', 24))
+        l.setFont(QFont('Courier', 24))
         self.layout.addWidget(l)
         r = self.planet.get_dynamic_data()
         array = [f'Количество спутников: {self.planet.number_of_moons}',
@@ -269,6 +269,6 @@ class PlanetInfo(QWidget):
             rev = QLabel()
             rev.setText(i)
             rev.setStyleSheet("color: white; padding: 5 0 0 5px")
-            rev.setFont(QFont('Arial', 12))
+            rev.setFont(QFont('Courier', 12))
             self.layout.addWidget(rev)
         self.setLayout(self.layout)
