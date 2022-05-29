@@ -1,6 +1,7 @@
 import ephem
 
-ephem_planets_list = [ephem.Mercury(), ephem.Venus(),
-                      "placeholder", ephem.Mars(),
-                      ephem.Jupiter(), ephem.Saturn(),
-                      ephem.Uranus(), ephem.Neptune()]
+ephem_bodies_list = [ephem.Sun(), ephem.Moon(),
+                     ephem.Mercury(), ephem.Venus(),
+                     "placeholder", ephem.Mars(),
+                     ephem.Jupiter(), ephem.Saturn(),
+                     ephem.Uranus(), ephem.Neptune()]

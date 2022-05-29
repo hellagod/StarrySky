@@ -179,7 +179,7 @@ class Menu(QWidget):
         layout = QGridLayout()
         layout.setSpacing(30)
         self.setAttribute(Qt.WA_StyledBackground, True)
-        for i in range(3):
+        for i in range(4):
             for j in range(3):
                 if len(self.arr) > i * 3 + j:
                     card = Card(self.parent, self.arr[i * 3 + j], i * 3 + j)
@@ -261,7 +261,7 @@ class PlanetInfo(QWidget):
         l.setFont(QFont('Arial', 24))
         self.layout.addWidget(l)
         r = self.planet.get_dynamic_data()
-        array = [f'Количество спутников: {self.planet.number_of_moons} лун',
+        array = [f'Количество спутников: {self.planet.number_of_moons}',
                  f'Средняя температура: {self.planet.temperature}\u00b0', f'Радиус: {self.planet.radius} км',
                  f'Масса: {self.planet.mass} кг', f'Объём: {self.planet.volume} км\u00b3',
                  f'Расстояние до Земли: \n\t{r if r else 0} а.е.']
