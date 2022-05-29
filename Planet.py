@@ -4,7 +4,7 @@ to store and fetch data acquired from the database
 """
 
 import sys
-from __init__ import ephem_bodies_list
+from __init__ import ephem_bodies_list, wiki_queries_dict
 
 """
 CelestialBody is the parent class for all celestial bodies to store info acquired from the database
@@ -15,6 +15,7 @@ class CelestialBody:
     def __init__(self, obj: dict):
         self.id = obj.get('id')
         self.name = obj.get('name')
+        self.description = wiki_queries_dict.get(f'{self.id}') # wikipedia.summary(f"{self.name}")
         self.englishName = obj.get('englishName')
         self.img_high_res = f'{sys.path[0]}/planet_textures/{self.id}.jpeg'
         self.img_small_res = f'{sys.path[0]}/planet_textures_smaller/{self.id}.jpeg'

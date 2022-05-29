@@ -5,9 +5,9 @@ faster loading of the main menu with planets' cards.
 """
 
 import sys
-
 from PIL import Image
 import os
+
 files = os.listdir(sys.path[0]+'/planet_textures')
 path = sys.path[0]+'/planet_textures/'
 for file in files:
