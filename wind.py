@@ -11,6 +11,10 @@ from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QGridLayout, QScrollAr
 
 from Planet import Planet
 
+'''
+Чтение текстуры
+'''
+
 
 def read_texture(file: str):
     img = Image.open(file)
@@ -27,6 +31,9 @@ def read_texture(file: str):
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL)
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, img.size[0], img.size[1], 0, GL_RGB, GL_UNSIGNED_BYTE, img_data)
     return textID
+
+
+'''Виджет маленького окна планеты с ее прокручиванием про наведении мышью'''
 
 
 class GLPlanet(QGLWidget):
@@ -48,7 +55,7 @@ class GLPlanet(QGLWidget):
         glMatrixMode(GL_MODELVIEW)
 
     def paintGL(self):
-        if  self.on_focus:
+        if self.on_focus:
             self.rot(0.5)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         glPushMatrix()
@@ -72,6 +79,9 @@ class GLPlanet(QGLWidget):
 
     def rot(self, u):
         self.ug += u
+
+
+'''Виджет большого окна планеты с постоянным оборотом'''
 
 
 class GLPlanetWindow(QGLWidget):
@@ -117,6 +127,9 @@ class GLPlanetWindow(QGLWidget):
         self.ug += u
 
 
+'''Виджет карточки меню с названием и образом планеты'''
+
+
 class Card(QWidget):
     def __init__(self, parent, planet: Planet, ind):
         super().__init__()
@@ -153,7 +166,7 @@ class Card(QWidget):
         self.txt = QLabel(self)
         self.txt.setStyleSheet("background-color: white; padding: 0 0 0 20px")
         self.txt.setText(self.planet.name)
-        self.txt.setFont(QFont('Courier', 18))
+        self.txt.setFont(QFont('Arial', 18))
         return self.txt
 
     def enterEvent(self, QEvent):
@@ -163,7 +176,10 @@ class Card(QWidget):
         self.planetGL.on_focus = False
 
     def mouseReleaseEvent(self, QMouseEvent):
-        self.parent.layout.setCurrentIndex(self.ind+1)
+        self.parent.layout.setCurrentIndex(self.ind + 1)
+
+
+'''Меню карточек в виде таблицы n*3'''
 
 
 class Menu(QWidget):
@@ -186,6 +202,9 @@ class Menu(QWidget):
                     layout.addWidget(card, i, j)
         self.setLayout(layout)
         self.setFixedWidth(self.width)
+
+
+'''Виджет главного окна реализующий переключение между меню и окном планеты'''
 
 
 class Main(QWidget):
@@ -211,6 +230,9 @@ class Main(QWidget):
             self.layout.addWidget(pl)
         self.setLayout(self.layout)
         self.setFixedSize(self.width, self.height)
+
+
+'''Окно с информацией о планете и ее моделькой'''
 
 
 class PlanetWindow(QWidget):
@@ -243,11 +265,14 @@ class PlanetWindow(QWidget):
         self.setLayout(self.layout)
 
 
+'''Виджет со всей доступной информаций по планете'''
+
+
 class PlanetInfo(QWidget):
     def __init__(self, planet: Planet):
         super().__init__()
         self.planet = planet
-        self.setFixedWidth(360)
+        self.setFixedWidth(340)
         self.initUI()
 
     def initUI(self):
@@ -258,17 +283,19 @@ class PlanetInfo(QWidget):
         l = QLabel()
         l.setText(self.planet.name)
         l.setStyleSheet("color: white; padding: 0 0 10 0px")
-        l.setFont(QFont('Courier', 24))
+        l.setFont(QFont('Arial', 24))
         self.layout.addWidget(l)
         r = self.planet.get_dynamic_data()
         array = [f'Количество спутников: {self.planet.number_of_moons}',
                  f'Средняя температура: {self.planet.temperature}\u00b0', f'Радиус: {self.planet.radius} км',
                  f'Масса: {self.planet.mass} кг', f'Объём: {self.planet.volume} км\u00b3',
-                 f'Расстояние до Земли: \n\t{r if r else 0} а.е.']
+                 f'Расстояние до Земли: \n\t{r if r else 0} а.е.', f'Краткая сводка:\n   {self.planet.description}']
         for i in array:
             rev = QLabel()
             rev.setText(i)
             rev.setStyleSheet("color: white; padding: 5 0 0 5px")
-            rev.setFont(QFont('Courier', 12))
+            rev.setFixedWidth(320)
+            rev.setWordWrap(True)
+            rev.setFont(QFont('Arial', 12))
             self.layout.addWidget(rev)
         self.setLayout(self.layout)
