@@ -13,6 +13,8 @@ from Planet import Planet
 
 '''
 Чтение текстуры
+read_texture is a function that reads the texture for the planet.
+Is used in the process of the planet's window creation for its 3D model.
 '''
 
 
@@ -33,7 +35,11 @@ def read_texture(file: str):
     return textID
 
 
-'''Виджет маленького окна планеты с ее прокручиванием про наведении мышью'''
+'''
+Виджет маленького окна планеты с ее прокручиванием про наведении мышью
+GLPlanet is a widget for a smaller planet's window used in a main menu planet's card.
+3D model rotates when the user hovers mouse over it.
+'''
 
 
 class GLPlanet(QGLWidget):
@@ -81,7 +87,11 @@ class GLPlanet(QGLWidget):
         self.ug += u
 
 
-'''Виджет большого окна планеты с постоянным оборотом'''
+'''
+Виджет большого окна планеты с постоянным оборотом
+GLPlanetWindow is a widget for the planet's larger window. 
+Shows the planet in constant rotation.
+'''
 
 
 class GLPlanetWindow(QGLWidget):
@@ -127,7 +137,11 @@ class GLPlanetWindow(QGLWidget):
         self.ug += u
 
 
-'''Виджет карточки меню с названием и образом планеты'''
+'''
+Виджет карточки меню с названием и образом планеты
+Card is q widget for cards, used in main menu to represent all the celestial bodies at once.
+Shows the body's name and a smaller 3D version of it.
+'''
 
 
 class Card(QWidget):
@@ -179,7 +193,10 @@ class Card(QWidget):
         self.parent.layout.setCurrentIndex(self.ind + 1)
 
 
-'''Меню карточек в виде таблицы n*3'''
+'''
+Меню карточек в виде таблицы n*3
+Menu of cards implemented as a n*3 table
+'''
 
 
 class Menu(QWidget):
@@ -204,7 +221,10 @@ class Menu(QWidget):
         self.setFixedWidth(self.width)
 
 
-'''Виджет главного окна реализующий переключение между меню и окном планеты'''
+'''
+Виджет главного окна реализующий переключение между меню и окном планеты
+Main is the main menu's widget, allowing to switch between the menu and a planet's card
+'''
 
 
 class Main(QWidget):
@@ -232,7 +252,10 @@ class Main(QWidget):
         self.setFixedSize(self.width, self.height)
 
 
-'''Окно с информацией о планете и ее моделькой'''
+'''
+Окно с информацией о планете и ее моделькой
+PlanetWindow is a window for a specific planet with its 3D model and the planet's information
+'''
 
 
 class PlanetWindow(QWidget):
@@ -265,7 +288,10 @@ class PlanetWindow(QWidget):
         self.setLayout(self.layout)
 
 
-'''Виджет со всей доступной информаций по планете'''
+'''
+Виджет со всей доступной информаций по планете
+PlanetInfo is a widget containing all the collected information on a specific planet
+'''
 
 
 class PlanetInfo(QWidget):

@@ -7,9 +7,9 @@ from planet_request import planet_list_generator
 
 
 if __name__ == '__main__':
-    # Создание списка небесных тел
+    # generation of the celestial bodies' list
     arr = planet_list_generator()
-    # Запуск приложения
+    # the app's launch
     app = QApplication(sys.argv)
     app.setWindowIcon(QIcon('icon.png'))
     ex = Main(arr)
